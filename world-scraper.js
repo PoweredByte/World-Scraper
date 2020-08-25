@@ -42,9 +42,29 @@ async function Start() {
 
     worlds = [...new Set(worlds)].filter(n => n); //REMOVE DUPLICATES AND EMPTY
 
-    //WIP
+    console.log("");
+    console.log("STARTING INSTANCE FETCHER".yellow);
+    console.log("");
 
+    let i = 0
+    await asyncForEach(worlds, async world => {
+        i++
+        await fetch('https://api.vrchat.cloud/api/1/worlds/' + world + '?apiKey=JlE5Jldo5Jibnk5O5hTx6XVqsJu4WJ26', { 'headers': authcookie, timeout: 5000 }).catch(e => {})
+            .then(res => res.json())
+            .then(async json => {
+                let name = json["name"]
+                await asyncForEach(json["instances"], instance => {
+                    if (instance[1] <= 0) return; //CHECK IF INSTANCE IS EMPTY, RETURN IF YES
+                    fs.appendFileSync('instances.txt', id["id"] + "\n");
+                })
+                console.log(colors.green(i + " / " + worlds.length + " DONE | " + name + " | INSTANCES: " + json["instances"].length));
+            }).catch(e => {})
+    })
 
-    await waitFor(60000)
+    console.log("");
+    console.log("DONE, RESTARTING IN 10 MINUTES".yellow);
+    console.log("");
+
+    await waitFor(600000)
     Start()
 }
